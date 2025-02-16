@@ -5,8 +5,8 @@
   
   <entry>
     <title>ComfyUI-极简主义肖像</title>
-    <link href="/2025/02/17/test/"/>
-    <url>/2025/02/17/test/</url>
+    <link href="/2025/02/17/ComfyUI-%E6%9E%81%E7%AE%80%E4%B8%BB%E4%B9%89%E8%82%96%E5%83%8F/"/>
+    <url>/2025/02/17/ComfyUI-%E6%9E%81%E7%AE%80%E4%B8%BB%E4%B9%89%E8%82%96%E5%83%8F/</url>
     
     <content type="html"><![CDATA[<p>参考：<a href="https://openart.ai/workflows/datou/minimalist-portrait/ubwU2IrFLcJ4nkkPNwNc">工作流</a><br>模型：<a href="https://huggingface.co/Comfy-Org/flux1-dev/blob/main/flux1-dev-fp8.safetensors">flux</a><br>lora： <a href="https://civitai.com/models/437067/organic-sauce-fluxpony?modelVersionId=1000905">人物风格</a> |<br>    <a href="https://www.liblib.art/modelinfo/81c7f7400971452fb5afafbac5ec5a49">极简主义</a><br>    <a href="https://huggingface.co/alimama-creative/FLUX.1-Turbo-Alpha/blob/main/diffusion_pytorch_model.safetensors">inpainting</a></p>]]></content>
     
