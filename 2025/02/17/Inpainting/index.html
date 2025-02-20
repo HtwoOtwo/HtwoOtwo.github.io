@@ -19,16 +19,16 @@
   <meta name="author" content="gezhi">
   <meta name="keywords" content="">
   
-    <meta name="description" content="PS：为了更好地解释原理以及概念的统一，代码中的一些变量可能与diffusers源码有一定出入。 Inpainting原理inpainting模型是通过特殊训练的diffusion模型，unet的输入为  latent_model_input &#x3D; torch.cat([latents, mask, masked_image_latents], dim&#x3D;1)    unet的输入是latents，m">
+    <meta name="description" content="PS：为了更好地解释原理以及概念的统一，代码中的一些变量可能与diffusers源码有一定出入。 Inpainting原理inpainting模型是通过特殊训练的diffusion模型，unet的输入为  latent_model_input &#x3D; torch.cat([latents, mask, masked_image_latents], dim&#x3D;1)     unet的输入是latents，">
 <meta property="og:type" content="article">
 <meta property="og:title" content="关于Inpainting的一些研究">
 <meta property="og:url" content="http://example.com/2025/02/17/Inpainting/index.html">
 <meta property="og:site_name" content="Gezhi的博客">
-<meta property="og:description" content="PS：为了更好地解释原理以及概念的统一，代码中的一些变量可能与diffusers源码有一定出入。 Inpainting原理inpainting模型是通过特殊训练的diffusion模型，unet的输入为  latent_model_input &#x3D; torch.cat([latents, mask, masked_image_latents], dim&#x3D;1)    unet的输入是latents，m">
+<meta property="og:description" content="PS：为了更好地解释原理以及概念的统一，代码中的一些变量可能与diffusers源码有一定出入。 Inpainting原理inpainting模型是通过特殊训练的diffusion模型，unet的输入为  latent_model_input &#x3D; torch.cat([latents, mask, masked_image_latents], dim&#x3D;1)     unet的输入是latents，">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2025/02/17/Inpainting/inpaintinginput.png">
 <meta property="article:published_time" content="2025-02-16T16:35:20.000Z">
-<meta property="article:modified_time" content="2025-02-20T09:08:22.116Z">
+<meta property="article:modified_time" content="2025-02-20T09:30:51.223Z">
 <meta property="article:author" content="gezhi">
 <meta property="article:tag" content="diffusers">
 <meta name="twitter:card" content="summary_large_image">
@@ -304,6 +304,7 @@
 <h2 id="Inpainting原理"><a href="#Inpainting原理" class="headerlink" title="Inpainting原理"></a>Inpainting原理</h2><p>inpainting模型是通过特殊训练的diffusion模型，unet的输入为 </p>
 <p><code>latent_model_input = torch.cat([latents, mask, masked_image_latents], dim=1)</code></p>
 <!-- <img src="inpaintinginput.png" srcset="/img/loading.gif" lazyload alt="unet input" > -->
+
 
 <!-- ![unnet input](../images/inpaintinginput.png) -->
 <p>unet的输入是latents，mask，masked_image_latents concat在一起的tensor，masked_image_latents包含了mask以外的图像信息，能够保证inpainting模型在mask区域生成的图像能够过度自然。</p>
