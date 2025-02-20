@@ -19,22 +19,24 @@
   <meta name="author" content="gezhi">
   <meta name="keywords" content="">
   
-    <meta name="description" content="参考：工作流 模型准备flux模型：fluxlora：人物风格极简主义inpainting">
+    <meta name="description" content="PS：为了更好地解释原理以及概念的统一，代码中的一些变量可能与diffusers源码有一定出入。 Inpainting原理inpainting模型是通过特殊训练的diffusion模型，unet的输入为  latent_model_input &#x3D; torch.cat([latents, mask, masked_image_latents], dim&#x3D;1)   unet的输入是latents，ma">
 <meta property="og:type" content="article">
-<meta property="og:title" content="ComfyUI-极简主义肖像">
-<meta property="og:url" content="http://example.com/2025/02/17/ComfyUI-%E6%9E%81%E7%AE%80%E4%B8%BB%E4%B9%89%E8%82%96%E5%83%8F/index.html">
+<meta property="og:title" content="关于Inpainting的一些研究">
+<meta property="og:url" content="http://example.com/2025/02/17/Inpainting%E7%A0%94%E7%A9%B6/index.html">
 <meta property="og:site_name" content="Gezhi的博客">
-<meta property="og:description" content="参考：工作流 模型准备flux模型：fluxlora：人物风格极简主义inpainting">
+<meta property="og:description" content="PS：为了更好地解释原理以及概念的统一，代码中的一些变量可能与diffusers源码有一定出入。 Inpainting原理inpainting模型是通过特殊训练的diffusion模型，unet的输入为  latent_model_input &#x3D; torch.cat([latents, mask, masked_image_latents], dim&#x3D;1)   unet的输入是latents，ma">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/02/17/images/inpaintinginput.png">
 <meta property="article:published_time" content="2025-02-16T16:35:20.000Z">
-<meta property="article:modified_time" content="2025-02-20T07:31:34.907Z">
+<meta property="article:modified_time" content="2025-02-20T08:12:37.844Z">
 <meta property="article:author" content="gezhi">
-<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="diffusers">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2025/02/17/images/inpaintinginput.png">
   
   
   
-  <title>ComfyUI-极简主义肖像 - Gezhi的博客</title>
+  <title>关于Inpainting的一些研究 - Gezhi的博客</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -213,7 +215,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="ComfyUI-极简主义肖像"></span>
+            <span id="subtitle" data-typed-text="关于Inpainting的一些研究"></span>
           
         </div>
 
@@ -236,7 +238,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          22 字
+          495 字
         
       </span>
     
@@ -247,7 +249,7 @@
         
         
         
-          1 分钟
+          5 分钟
         
       </span>
     
@@ -293,13 +295,28 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">ComfyUI-极简主义肖像</h1>
+            <h1 id="seo-header">关于Inpainting的一些研究</h1>
             
             
               <div class="markdown-body">
                 
-                <p>参考：<a target="_blank" rel="noopener" href="https://openart.ai/workflows/datou/minimalist-portrait/ubwU2IrFLcJ4nkkPNwNc">工作流</a></p>
-<h2 id="模型准备"><a href="#模型准备" class="headerlink" title="模型准备"></a>模型准备</h2><p>flux模型：<br><a target="_blank" rel="noopener" href="https://huggingface.co/Comfy-Org/flux1-dev/blob/main/flux1-dev-fp8.safetensors">flux</a><br>lora：<br><a target="_blank" rel="noopener" href="https://civitai.com/models/437067/organic-sauce-fluxpony?modelVersionId=1000905">人物风格</a><br><a target="_blank" rel="noopener" href="https://www.liblib.art/modelinfo/81c7f7400971452fb5afafbac5ec5a49">极简主义</a><br><a target="_blank" rel="noopener" href="https://huggingface.co/alimama-creative/FLUX.1-Turbo-Alpha/blob/main/diffusion_pytorch_model.safetensors">inpainting</a></p>
+                <p>PS：为了更好地解释原理以及概念的统一，代码中的一些变量可能与diffusers源码有一定出入。</p>
+<h2 id="Inpainting原理"><a href="#Inpainting原理" class="headerlink" title="Inpainting原理"></a>Inpainting原理</h2><p>inpainting模型是通过特殊训练的diffusion模型，unet的输入为 </p>
+<p><code>latent_model_input = torch.cat([latents, mask, masked_image_latents], dim=1)</code></p>
+<img src="../images/inpaintinginput.png" srcset="/img/loading.gif" lazyload alt="unet input" >
+<!-- ![unnet input](../images/inpaintinginput.png) -->
+unet的输入是latents，mask，masked_image_latents concat在一起的tensor，masked_image_latents包含了mask以外的图像信息，能够保证inpainting模型在mask区域生成的图像能够过度自然。
+
+<p>每一步去噪会做：</p>
+<p><code>latents = (1 - init_mask) * init_latents_proper + init_mask * latents</code></p>
+<p>这一步保证了去噪只在mask区域进行，其他区域则依然是init_latents_proper（image_latents）所以能保证原图其他部分不被修改，但值得注意的是，由于vae encoder，decoder带来的损失，并非像素值完全相等。</p>
+<h2 id="如何提高inpainting的效果"><a href="#如何提高inpainting的效果" class="headerlink" title="如何提高inpainting的效果"></a>如何提高inpainting的效果</h2><p>从原理上讲，提高inpainting效果，可以通过 init_mask * latents入手，其中init_mask可以做些许膨胀这样可以使得过度更加自然。当strength&lt;1時latents（init_latents）由原图掩码区域初始化加噪而来，对结果影响也十分巨大，生成的物体往往受到原物体的影响，通过适当fill和blur可以消除原物体的影响使得inpainting生成更加彻底纯粹。当然strength&#x3D;1时init_latents是纯噪声，fill和blur则不起作用。</p>
+<p>如果inpainting效果仍然不佳，或者想要对inpainting的内容做更强的控制，一般可以选择微调inpainting模型或者使用adapter方法，例如IPAdapter，通过参考图的形式更好地控制生成内容。</p>
+<h2 id="关于init-latents"><a href="#关于init-latents" class="headerlink" title="关于init_latents"></a>关于init_latents</h2><p>我们将第一步去噪的latents称为init_latents, image2image的init_latents是image通过vae编码 + random noise 得来</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs stylus">init_latents = <span class="hljs-built_in">retrieve_latents</span>(self<span class="hljs-selector-class">.vae</span><span class="hljs-selector-class">.encode</span>(image), generator=generator)<br>init_latents = self<span class="hljs-selector-class">.scheduler</span><span class="hljs-selector-class">.add_noise</span>(init_latents, noise, timestep)<br></code></pre></td></tr></table></figure>
+<p>text2image的init_latents就是random noise，当然也可以设置strength&lt;1少加点噪声，多考虑一些image的latent。</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs routeros">is_strength_max = <span class="hljs-attribute">strength</span>==1.0<br>noise = randn_tensor(shape, <span class="hljs-attribute">generator</span>=generator, <span class="hljs-attribute">device</span>=device, <span class="hljs-attribute">dtype</span>=dtype)<br>init_latents = noise <span class="hljs-keyword">if</span> is_strength_max <span class="hljs-keyword">else</span> self.scheduler.add_noise(image_latents, noise, timestep)<br></code></pre></td></tr></table></figure>
+<p>如果在init_latents中考虑了原图的成分，那么最后生成的图片会带有明显的原图风格。</p>
 
                 
               </div>
@@ -318,7 +335,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/ComfyUI/" class="category-chain-item">ComfyUI</a>
+  <a href="/categories/%E5%8E%9F%E7%90%86%E7%A0%94%E7%A9%B6/" class="category-chain-item">原理研究</a>
   
   
 
@@ -333,7 +350,7 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/workflow/" class="print-no-link">#workflow</a>
+        <a href="/tags/diffusers/" class="print-no-link">#diffusers</a>
       
     </div>
   
@@ -345,8 +362,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>ComfyUI-极简主义肖像</div>
-      <div>http://example.com/2025/02/17/ComfyUI-极简主义肖像/</div>
+      <div>关于Inpainting的一些研究</div>
+      <div>http://example.com/2025/02/17/Inpainting研究/</div>
     </div>
     <div class="license-meta">
       
@@ -390,15 +407,15 @@
                   <article class="post-prev col-6">
                     
                     
+                      <a href="/2025/02/17/ComfyUI-%E6%9E%81%E7%AE%80%E4%B8%BB%E4%B9%89%E8%82%96%E5%83%8F/" title="ComfyUI-极简主义肖像">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">ComfyUI-极简主义肖像</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
                   </article>
                   <article class="post-next col-6">
                     
-                    
-                      <a href="/2025/02/17/Inpainting%E7%A0%94%E7%A9%B6/" title="关于Inpainting的一些研究">
-                        <span class="hidden-mobile">关于Inpainting的一些研究</span>
-                        <span class="visible-mobile">下一篇</span>
-                        <i class="iconfont icon-arrowright"></i>
-                      </a>
                     
                   </article>
                 </div>
